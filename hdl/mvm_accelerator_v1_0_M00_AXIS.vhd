@@ -38,28 +38,7 @@ entity mvm_accelerator_v1_0_M00_AXIS is
 end mvm_accelerator_v1_0_M00_AXIS;
 
 architecture implementation of mvm_accelerator_v1_0_M00_AXIS is
-    component mvm_accelerator is
-        generic (
-            D : integer := 1024; -- size of data stream
-            N : integer := 32;
-            Y : integer := 32; --number of cores = D / N
-            M : integer := 8
-        );
-        port (
-            sysclk  : in std_logic; -- system clock
-            reset   : in std_logic; -- reset registers and coutners
-            data_in : in std_logic_vector(D - 1 downto 0);
-    
-            tready : in std_logic;
-            tvalid : in std_logic;
-    
-            loadw_i  : in std_logic_vector(Y - 1 downto 0);
-            read_cmd : in std_logic;
-    
-            data_out : out std_logic_vector(D - 1 downto 0)
-        );
-    end component;
-    
+	
 	-- Total number of output data                                              
 	constant NUMBER_OF_OUTPUT_WORDS : integer := 8;                                   
 

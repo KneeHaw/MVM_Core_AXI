@@ -27,8 +27,11 @@ entity mvm_accelerator is
         reset   : in std_logic; -- reset registers and coutners
         data_in : in std_logic_vector(D - 1 downto 0);
 
-        tready : in std_logic;
-        tvalid : in std_logic;
+        tready_in : in std_logic;
+        tvalid_in : in std_logic;
+
+        tready_out : in std_logic;
+        tvalid_out : in std_logic;
 
         loadw_i  : in std_logic_vector(Y - 1 downto 0);
         read_cmd : in std_logic;
@@ -54,6 +57,7 @@ architecture mvm_cores of mvm_accelerator is
             input         : in std_logic_vector(D - 1 downto 0); -- Input data stream of size D
             read_complete : in std_logic;
             new_data      : in std_logic;
+            send_valid  : in std_logic;
             loadw         : in std_logic;
             busy          : out std_logic;
             done          : out std_logic;
@@ -72,12 +76,11 @@ architecture mvm_cores of mvm_accelerator is
         );
     end component;
 
-    type STATE_TYPE is (IDLE, SENDING);
+    type STATE_TYPE is (IDLE, SENDING);  -- Idle allows weight load lower in hierarchy
     signal current_state : STATE_TYPE; -- current state
     signal next_state    : STATE_TYPE; -- next state
-
     signal core_cell_outs : std_logic_vector(Y * N * N - 1 downto 0);
-
+    signal send_valid  : std_logic;
     signal col_vectors   : std_logic_vector(C * N - 1 downto 0);
     signal col_outputs   : std_logic_vector(C * M - 1 downto 0);
     signal done_i        : std_logic_vector(Y - 1 downto 0);
@@ -158,14 +161,17 @@ begin
                         data_out      <= (others => '0');
 
                     when SENDING =>
-                        for core_idx in read_counter * 4 to read_counter * 4 + 3 loop -- Cores
-                            for i in 0 to N - 1 loop                                      -- Columns
-                                for j in 0 to N - 1 loop                                      -- Rows
-                                    col_vectors(i * N + j) <= core_cell_outs(core_idx * N * N + j * N + i);
+                        -- Only initiate data transfer out if data will be accepted.
+                        if (send_valid ='1') then
+                            for core_idx in read_counter * 4 to read_counter * 4 + 3 loop -- Cores
+                                for i in 0 to N - 1 loop                                      -- Columns
+                                    for j in 0 to N - 1 loop                                      -- Rows
+                                        col_vectors(i * N + j) <= core_cell_outs(core_idx * N * N + j * N + i);
+                                    end loop;
                                 end loop;
+                                read_counter <= read_counter + 1;
                             end loop;
-                            read_counter <= read_counter + 1;
-                        end loop;
+                        end if;
 
                     when others         =>
                         data_out <= (others => '0');
@@ -175,7 +181,8 @@ begin
         end if;
     end process;
 
-    new_data_s <= tready and tvalid;
+    send_valid <= tready_out and tvalid_out;
+    new_data_s <= tready_in and tvalid_in;
     data_out     <= col_outputs;
 
 end mvm_cores;

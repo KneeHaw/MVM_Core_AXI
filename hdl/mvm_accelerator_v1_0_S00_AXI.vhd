@@ -16,7 +16,16 @@ entity mvm_accelerator_v1_0_S00_AXI is
 	);
 	port (
 		-- Users to add ports here
-
+		
+		-- Register passthrough to main AXI component for config of streams
+		s00_axi_reg0 : out std_logic_vector(31 downto 0);
+		s00_axi_reg1 : out std_logic_vector(31 downto 0);
+		s00_axi_reg2 : out std_logic_vector(31 downto 0);
+		s00_axi_reg3 : out std_logic_vector(31 downto 0);		
+		s00_axi_reg4 : out std_logic_vector(31 downto 0);
+		s00_axi_reg5 : out std_logic_vector(31 downto 0);
+		s00_axi_reg6 : out std_logic_vector(31 downto 0);
+		s00_axi_reg7 : out std_logic_vector(31 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -437,7 +446,14 @@ begin
 
 
 	-- Add user logic here
-
+	s00_axi_reg0 <= slv_reg0;
+	s00_axi_reg1 <= slv_reg1;
+	s00_axi_reg2 <= slv_reg2;
+	s00_axi_reg3 <= slv_reg3;		
+	s00_axi_reg4 <= slv_reg4;
+	s00_axi_reg5 <= slv_reg5;
+	s00_axi_reg7 <= slv_reg7;
+	s00_axi_reg6 <= slv_reg6;
 	-- User logic ends
 
 end arch_imp;
