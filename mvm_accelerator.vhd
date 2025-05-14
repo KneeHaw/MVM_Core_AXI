@@ -11,9 +11,9 @@
 -------------------------------------------------------------------------------
 
 library IEEE;
-use IEEE.std_logic_1164.all;
-use IEEE.STD_LOGIC_ARITH.all;
-use IEEE.STD_LOGIC_UNSIGNED.all;
+    use IEEE.std_logic_1164.all;
+    use IEEE.STD_LOGIC_ARITH.all;
+    use IEEE.STD_LOGIC_UNSIGNED.all;
 
 entity mvm_accelerator is
     generic (
@@ -101,7 +101,7 @@ begin
             busy          => busy_i(i),
             done          => done_i(i),
             read_complete => read_complete,
-            data_out      => core_cell_outs((i + 1) * N * N - 1 downto i * N * N)
+            output      => core_cell_outs((i + 1) * N * N - 1 downto i * N * N)
         );
     end generate;
 
@@ -125,7 +125,7 @@ begin
         end if;
     end process;
 
-    NEXT_state_logic : process (current_state, read_i, done_i, read_complete)
+    NEXT_state_logic : process (current_state, read_cmd, loadw_i, read_counter)
     begin
         next_state <= current_state;
 

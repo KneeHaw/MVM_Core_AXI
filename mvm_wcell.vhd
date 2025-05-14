@@ -20,20 +20,25 @@
 -- Operation is similar to that of an XNOR
 -- We can remove the not and just treat as an XOR, working in reverse!
 
+library IEEE;
+    use IEEE.std_logic_1164.all;
+    use IEEE.STD_LOGIC_ARITH.all;
+    use IEEE.STD_LOGIC_UNSIGNED.all;
+    
 entity mvm_wcell is
     port (
         X      : in std_logic;
         W      : in std_logic;
         sysclk : in std_logic;
         reset  : in std_logic;
-        loadw  : in std_logic
+        loadw  : in std_logic;
 
-        result : out std_logic;
+        result : out std_logic
     );
 
 end mvm_wcell;
 
-architecture mvm_core of mvm_NxN is
+architecture mvm_core of mvm_wcell is
 
     signal weight_val : std_logic; -- This is the persistently stored weight val (DFF)
 
@@ -53,9 +58,7 @@ begin
 
     COMPUTE_result : process (X, W)
     begin
-
         result <= (X xor W); -- Optional (not),  (XOR means counting -1's, XNOR counts 1's)
-
     end process;
-
+    
 end mvm_core;

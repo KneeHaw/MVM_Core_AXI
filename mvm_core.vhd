@@ -10,12 +10,9 @@
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 library IEEE;
-use IEEE.std_logic_1164.all;
-use IEEE.STD_LOGIC_ARITH.all;
-use IEEE.STD_LOGIC_UNSIGNED.all;
-
-library CUSTOM;
-use CUSTOM.custom_types.all;
+    use IEEE.std_logic_1164.all;
+    use IEEE.STD_LOGIC_ARITH.all;
+    use IEEE.STD_LOGIC_UNSIGNED.all;
 
 entity mvm_NxN is
     generic (
@@ -47,21 +44,21 @@ architecture mvm_core of mvm_NxN is
             W      : in std_logic;
             sysclk : in std_logic;
             reset  : in std_logic;
-            loadw  : in std_logic
+            loadw  : in std_logic;
 
-            result : out std_logic;
+            result : out std_logic
         );
     end component;
 
-    type STATE_TYPE is (IDLE, LOADING_W, DONE);
+    type STATE_TYPE is (IDLE, LOADING_W, DONE_STATE);
 
     signal current_state : STATE_TYPE; -- current state
     signal next_state    : STATE_TYPE; -- next state
 
     signal input_vector  : std_logic_vector(N - 1 downto 0);
-    signal weight_matrix : std_logic_vector(N * N - 1 downto 0)
+    signal weight_matrix : std_logic_vector(N * N - 1 downto 0);
 
-    signal cell_outputs : std_logic_vector(N * N - 1 downto 0)
+    signal cell_outputs : std_logic_vector(N * N - 1 downto 0);
 
 begin
 
@@ -107,7 +104,7 @@ begin
                         busy <= '1';
                         done <= '0';
 
-                    when DONE =>
+                    when DONE_STATE =>
                         busy <= '0';
                         done <= '1';
 
@@ -132,10 +129,10 @@ begin
 
             when LOADING_W =>
                 if (new_data = '1') then
-                    next_state <= DONE;
+                    next_state <= DONE_STATE;
                 end if;
 
-            when DONE =>
+            when DONE_STATE =>
                 if (read_complete = '1') then
                     next_state <= IDLE;
                 end if;
