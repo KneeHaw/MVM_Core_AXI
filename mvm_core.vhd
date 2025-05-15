@@ -29,12 +29,14 @@ entity mvm_NxN is
         new_data      : in std_logic;
         loadw         : in std_logic;
 
+
+		-- May need flag that says ready for read to respond to read_cmd
         busy   : out std_logic;
         done   : out std_logic;
         output : out std_logic_vector(N * N - 1 downto 0)
     );
 
-end entity;
+end mvm_NxN;
 
 architecture mvm_core of mvm_NxN is
 

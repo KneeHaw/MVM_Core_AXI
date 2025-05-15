@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity mvm_accelerator_v1_0_M00_AXIS is
+entity mvm_accel_v1_0_M00_AXIS is
 	generic (
 		-- Users to add parameters here
 
@@ -35,10 +35,9 @@ entity mvm_accelerator_v1_0_M00_AXIS is
 		-- TREADY indicates that the slave can accept a transfer in the current cycle.
 		M_AXIS_TREADY	: in std_logic
 	);
-end mvm_accelerator_v1_0_M00_AXIS;
+end mvm_accel_v1_0_M00_AXIS;
 
-architecture implementation of mvm_accelerator_v1_0_M00_AXIS is
-	
+architecture implementation of mvm_accel_v1_0_M00_AXIS is
 	-- Total number of output data                                              
 	constant NUMBER_OF_OUTPUT_WORDS : integer := 8;                                   
 

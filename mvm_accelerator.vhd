@@ -27,25 +27,23 @@ entity mvm_accelerator is
         reset   : in std_logic; -- reset registers and coutners
         data_in : in std_logic_vector(D - 1 downto 0);
 
-        tready_in : in std_logic;
-        tvalid_in : in std_logic;
-
-        tready_out : in std_logic;
-        tvalid_out : in std_logic;
+        transfer_in : in std_logic;
+        transfer_out : in std_logic;
 
         loadw_i  : in std_logic_vector(Y - 1 downto 0);
         read_cmd : in std_logic;
 
+        readout_complete : out std_logic;
         data_out : out std_logic_vector(D - 1 downto 0)
     );
 
 end entity;
 
-architecture mvm_cores of mvm_accelerator is
+ architecture mvm_cores of mvm_accelerator is
 
-    constant C : integer := D / M; -- number of col adders
+    constant C : integer := 128; -- number of col adders
 
-    component mvm_core
+    component mvm_NxN is
         generic (
             D       : integer := D; -- Data stream size
             N       : integer := N;
@@ -57,7 +55,6 @@ architecture mvm_cores of mvm_accelerator is
             input         : in std_logic_vector(D - 1 downto 0); -- Input data stream of size D
             read_complete : in std_logic;
             new_data      : in std_logic;
-            send_valid  : in std_logic;
             loadw         : in std_logic;
             busy          : out std_logic;
             done          : out std_logic;
@@ -68,7 +65,7 @@ architecture mvm_cores of mvm_accelerator is
     component mvm_col_add is
         generic (
             N : integer := N;
-            M : integer := 5
+            M : integer := 8
         );
         port (
             input  : in std_logic_vector(N - 1 downto 0);
@@ -80,7 +77,7 @@ architecture mvm_cores of mvm_accelerator is
     signal current_state : STATE_TYPE; -- current state
     signal next_state    : STATE_TYPE; -- next state
     signal core_cell_outs : std_logic_vector(Y * N * N - 1 downto 0);
-    signal send_valid  : std_logic;
+    signal send_valid   : std_logic;
     signal col_vectors   : std_logic_vector(C * N - 1 downto 0);
     signal col_outputs   : std_logic_vector(C * M - 1 downto 0);
     signal done_i        : std_logic_vector(Y - 1 downto 0);
@@ -91,7 +88,7 @@ architecture mvm_cores of mvm_accelerator is
 begin
     gen_mvm_cores : for i in 0 to Y - 1 generate -- Y cores
         -- Generate core matrix
-        add_inst : mvm_core
+        add_inst : mvm_NxN
         generic map(
             core_id => i
         )
@@ -112,7 +109,7 @@ begin
         add_inst : mvm_col_add
         port map(
             input  => col_vectors((i + 1) * N - 1 downto i * N), -- All rows of column i
-            output => col_outputs((i + 1) * M - 1 downto i * N)  -- populate byte output i
+            output => col_outputs((i + 1) * M - 1 downto i * M)  -- populate byte output i
         );
     end generate;
 
@@ -131,7 +128,7 @@ begin
     NEXT_state_logic : process (current_state, read_cmd, loadw_i, read_counter)
     begin
         next_state <= current_state;
-
+        read_complete <= '0';
         case current_state is
             when IDLE =>
                 if (read_cmd = '1' and unsigned(loadw_i) = 0) then
@@ -157,7 +154,6 @@ begin
             else
                 case current_state is
                     when IDLE =>
-                        read_complete <= '0';
                         data_out      <= (others => '0');
 
                     when SENDING =>
@@ -181,8 +177,9 @@ begin
         end if;
     end process;
 
-    send_valid <= tready_out and tvalid_out;
-    new_data_s <= tready_in and tvalid_in;
+    readout_complete <= read_complete;
+    send_valid <= transfer_out;
+    new_data_s <= transfer_in;
     data_out     <= col_outputs;
 
 end mvm_cores;

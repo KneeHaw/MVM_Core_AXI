@@ -38,7 +38,7 @@ entity mvm_wcell is
 
 end mvm_wcell;
 
-architecture mvm_core of mvm_wcell is
+architecture comp_dff of mvm_wcell is
 
     signal weight_val : std_logic; -- This is the persistently stored weight val (DFF)
 
@@ -61,4 +61,4 @@ begin
         result <= (X xor W); -- Optional (not),  (XOR means counting -1's, XNOR counts 1's)
     end process;
     
-end mvm_core;
+end comp_dff;

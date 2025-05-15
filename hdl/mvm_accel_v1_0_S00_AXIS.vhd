@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity mvm_accelerator_v1_0_S00_AXIS is
+entity mvm_accel_v1_0_S00_AXIS is
 	generic (
 		-- Users to add parameters here
 
@@ -33,9 +33,9 @@ entity mvm_accelerator_v1_0_S00_AXIS is
 		-- Data is in valid
 		S_AXIS_TVALID	: in std_logic
 	);
-end mvm_accelerator_v1_0_S00_AXIS;
+end mvm_accel_v1_0_S00_AXIS;
 
-architecture arch_imp of mvm_accelerator_v1_0_S00_AXIS is
+architecture arch_imp of mvm_accel_v1_0_S00_AXIS is
 	-- function called clogb2 that returns an integer which has the 
 	-- value of the ceiling of the log base 2.
 	function clogb2 (bit_depth : integer) return integer is 
@@ -55,7 +55,7 @@ architecture arch_imp of mvm_accelerator_v1_0_S00_AXIS is
 	end;    
 
 	-- Total number of input data.
-	constant NUMBER_OF_INPUT_WORDS  : integer := 8;
+	constant NUMBER_OF_INPUT_WORDS  : integer := 8 * 32;
 	-- bit_num gives the minimum number of bits needed to address 'NUMBER_OF_INPUT_WORDS' size of FIFO.
 	constant bit_num  : integer := clogb2(NUMBER_OF_INPUT_WORDS-1);
 	-- Define the states of state machine
@@ -78,7 +78,7 @@ architecture arch_imp of mvm_accelerator_v1_0_S00_AXIS is
 	-- sink has accepted all the streaming data and stored in FIFO
 	signal writes_done : std_logic;
 
-	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(((C_S_AXIS_TDATA_WIDTH/4)-1)downto 0);
+	type BYTE_FIFO_TYPE is array (0 to (NUMBER_OF_INPUT_WORDS-1)) of std_logic_vector(((C_S_AXIS_TDATA_WIDTH/128)-1)downto 0);
 begin
 	-- I/O Connections assignments
 
